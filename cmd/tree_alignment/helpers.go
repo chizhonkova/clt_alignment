@@ -14,9 +14,9 @@ func readContent(filePath string) []byte {
 	return content
 }
 
-func LoadGraphDescription(graphPath string) []alignment.NodeDescription {
+func LoadGraphDescription(graphPath string) []*alignment.NodeDescription {
 	content := readContent(graphPath)
-	var description []alignment.NodeDescription
+	description := []*alignment.NodeDescription{}
 	if err := json.Unmarshal(content, &description); err != nil {
 		panic(err)
 	}
