@@ -122,6 +122,71 @@ func (a *AlignmentTask) calculateForEmptyRight(pair TreePair) (int, int) {
 	return -a.first[id].FullPenalty, RightEmptyCase
 }
 
+func findMaxQuality(qualities, cases []int) (int, int) {
+	maxQ := qualities[0]
+	maxCase := cases[0]
+
+	for i, quality := range qualities {
+		if quality > maxQ {
+			maxQ = quality
+			maxCase = cases[i]
+		}
+	}
+
+	return maxQ, maxCase
+}
+
+func (a *AlignmentTask) findRootTagsCost(firstTag, secondTag string) int {
+	tagCost := a.config.TagEqualityCost
+	if firstTag == DeletionTag && secondTag == DeletionTag {
+		tagCost = 0
+	}
+	if firstTag != secondTag {
+		if firstTag != DeletionTag && secondTag != DeletionTag {
+			tagCost = -a.config.TagUnequalityCost
+		} else {
+			tagCost = -a.config.DeletionCost
+		}
+	}
+	return tagCost
+}
+
+func (a *AlignmentTask) findFirstCaseQuality(pair TreePair) (int, int) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+	tagCost := a.findRootTagsCost(firstTag, secondTag)
+
+	aID := a.first[firstID].LeftOrDefault()
+	bID := a.first[firstID].RightOrDefault()
+	cID := a.second[secondID].LeftOrDefault()
+	dID := a.second[secondID].RightOrDefault()
+	aCAndBd := tagCost + a.quality[TreePair{Lhs: aID, Rhs: cID}] + a.quality[TreePair{Lhs: bID, Rhs: dID}]
+	adAndBc := tagCost + a.quality[TreePair{Lhs: aID, Rhs: dID}] + a.quality[TreePair{Lhs: bID, Rhs: cID}]
+
+	if aCAndBd > adAndBc {
+		return aCAndBd, FirstACAndBDCase
+	} else {
+		return adAndBc, FirstADAndBCCase
+	}
+}
+
+// func (a *AlignmentTask) findSecondCaseQuality(pair TreePair) (int, int) {
+// 	firstID := pair.Lhs
+// 	secondID := pair.Rhs
+
+// 	firstTag := a.first[firstID].Tag
+// 	secondTag := a.second[secondID].Tag
+// 	tagCost := a.findRootTagsCost(firstTag, secondTag)
+
+// 	aDelID := firstID + len(a.first) / 2
+// 	bID := a.second[secondID].LeftOrDefault()
+// 	cID := a.second[secondID].RightOrDefault()
+
+// }
+
 func (a *AlignmentTask) calculatePairQuality(pair TreePair) (int, int) {
 	// Empty trees.
 	if pair.Lhs == EmptyTreeID && pair.Rhs == EmptyTreeID {
@@ -138,7 +203,17 @@ func (a *AlignmentTask) calculatePairQuality(pair TreePair) (int, int) {
 		return a.calculateForEmptyRight(pair)
 	}
 
-	return 0, 0
+	qualities := []int{}
+	cases := []int{}
+
+	// 1
+	q, c := a.findFirstCaseQuality(pair)
+	qualities = append(qualities, q)
+	cases = append(cases, c)
+
+	// 2
+
+	return findMaxQuality(qualities, cases)
 }
 
 func (a *AlignmentTask) calculateQuality() {
@@ -178,8 +253,6 @@ func CalculateAlignment(c *Config) error {
 		quality:     make(map[TreePair]int),
 		qCase:       make(map[TreePair]int),
 	}
-
-	a.printInfo()
 
 	// Calculate quality of this pairs.
 	a.calculateQuality()

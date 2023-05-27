@@ -40,4 +40,8 @@ const (
 	BothEmptyCase  = 0
 	LeftEmptyCase  = 1
 	RightEmptyCase = 2
+
+	// 1
+	FirstACAndBDCase = 3
+	FirstADAndBCCase = 4
 )
