@@ -63,10 +63,10 @@ func getSortedTreePairs(first, second int) []TreePair {
 	// Non-empty subtrees.
 	for i := first - 1; i >= 0; i-- {
 		for j := second - 1; j >= 0; j-- {
-			pairs = append(pairs, TreePair{Lhs: i, Rhs: j})
+			pairs = append(pairs, TreePair{Lhs: i + first, Rhs: j + second})
 			pairs = append(pairs, TreePair{Lhs: i, Rhs: j + second})
 			pairs = append(pairs, TreePair{Lhs: i + first, Rhs: j})
-			pairs = append(pairs, TreePair{Lhs: i + first, Rhs: j + second})
+			pairs = append(pairs, TreePair{Lhs: i, Rhs: j})
 		}
 	}
 	return pairs
@@ -173,19 +173,165 @@ func (a *AlignmentTask) findFirstCaseQuality(pair TreePair) (int, int) {
 	}
 }
 
-// func (a *AlignmentTask) findSecondCaseQuality(pair TreePair) (int, int) {
-// 	firstID := pair.Lhs
-// 	secondID := pair.Rhs
+func (a *AlignmentTask) findSecondCaseQuality(pair TreePair) (int, int) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
 
-// 	firstTag := a.first[firstID].Tag
-// 	secondTag := a.second[secondID].Tag
-// 	tagCost := a.findRootTagsCost(firstTag, secondTag)
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+	tagCost := a.findRootTagsCost(firstTag, secondTag)
 
-// 	aDelID := firstID + len(a.first) / 2
-// 	bID := a.second[secondID].LeftOrDefault()
-// 	cID := a.second[secondID].RightOrDefault()
+	aDelID := firstID
+	if aDelID < len(a.first)/2 {
+		aDelID += len(a.first) / 2
+	}
+	bID := a.second[secondID].LeftOrDefault()
+	cID := a.second[secondID].RightOrDefault()
 
-// }
+	aBAndC := tagCost + a.quality[TreePair{Lhs: aDelID, Rhs: bID}] - a.second[cID].FullPenalty
+	aCAndB := tagCost + a.quality[TreePair{Lhs: aDelID, Rhs: cID}] - a.second[bID].FullPenalty
+
+	// Symmetric case.
+	dID := a.first[firstID].LeftOrDefault()
+	eID := a.first[firstID].RightOrDefault()
+	fDelID := secondID
+	if fDelID < len(a.second)/2 {
+		fDelID += len(a.second) / 2
+	}
+
+	dFAndE := tagCost + a.quality[TreePair{Lhs: dID, Rhs: fDelID}] - a.first[eID].FullPenalty
+	eFAndD := tagCost + a.quality[TreePair{Lhs: eID, Rhs: fDelID}] - a.first[dID].FullPenalty
+
+	qualitites := []int{aBAndC, aCAndB, dFAndE, eFAndD}
+	cases := []int{SecondABAndCCase, SecondACAndBCase, SecondDFAndECase, SecondEFAndDCase}
+	return findMaxQuality(qualitites, cases)
+}
+
+func (a *AlignmentTask) findThirdCaseQuality(pair TreePair) (int, int) {
+	// This case is sutable only if one of the root tags is not a deletion.
+
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+	tagCost := a.findRootTagsCost(firstTag, secondTag)
+
+	aDelID := firstID
+	if aDelID < len(a.first)/2 {
+		aDelID += len(a.first) / 2
+	}
+	bDelId := secondID
+	if bDelId < len(a.second)/2 {
+		bDelId += len(a.second) / 2
+	}
+
+	quality := tagCost + a.quality[TreePair{Lhs: aDelID, Rhs: bDelId}]
+	return quality, ThirdCase
+}
+
+func (a *AlignmentTask) findFourthCaseQuality(pair TreePair) (int, int) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+	tagCost := a.findRootTagsCost(firstTag, secondTag)
+
+	aDelID := firstID
+	if aDelID < len(a.first)/2 {
+		aDelID += len(a.first) / 2
+	}
+	bDelId := secondID
+	if bDelId < len(a.second)/2 {
+		bDelId += len(a.second) / 2
+	}
+
+	quality := tagCost - a.first[aDelID].FullPenalty - a.second[bDelId].FullPenalty
+	return quality, FourthCase
+}
+
+func (a *AlignmentTask) findFifthCaseQuality(pair TreePair) (int, int) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	aID := a.first[firstID].LeftOrDefault()
+	bID := a.first[firstID].RightOrDefault()
+	tagCost := a.findRootTagsCost(a.first[firstID].Tag, DeletionTag)
+
+	acAndB := a.quality[TreePair{Lhs: aID, Rhs: secondID}] + tagCost - a.first[bID].FullPenalty
+	bcAndA := a.quality[TreePair{Lhs: bID, Rhs: secondID}] + tagCost - a.first[aID].FullPenalty
+
+	eID := a.second[secondID].LeftOrDefault()
+	fID := a.second[secondID].RightOrDefault()
+	tagCost = a.findRootTagsCost(DeletionTag, a.second[secondID].Tag)
+
+	deAndF := a.quality[TreePair{Lhs: firstID, Rhs: eID}] + tagCost - a.second[fID].FullPenalty
+	dfAndE := a.quality[TreePair{Lhs: firstID, Rhs: fID}] + tagCost - a.second[eID].FullPenalty
+
+	qualities := []int{acAndB, bcAndA, deAndF, dfAndE}
+	cases := []int{FifthACAndBCase, FifthBCAndACase, FifthDEAndFCase, FifthDFAndECase}
+	return findMaxQuality(qualities, cases)
+}
+
+func (a *AlignmentTask) findSixthCaseQuality(pair TreePair) (int, int) {
+	qualities := []int{}
+	cases := []int{}
+
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+
+	if firstTag != DeletionTag {
+		aDelID := firstID
+		if aDelID < len(a.first)/2 {
+			aDelID += len(a.first) / 2
+		}
+		quality := a.quality[TreePair{Lhs: aDelID, Rhs: secondID}] - a.config.DeletionCost
+		qualities = append(qualities, quality)
+		cases = append(cases, SixthFirstCase)
+	}
+
+	if secondTag != DeletionTag {
+		bDelID := secondID
+		if bDelID < len(a.second)/2 {
+			bDelID += len(a.second) / 2
+		}
+		quality := a.quality[TreePair{Lhs: firstID, Rhs: bDelID}] - a.config.DeletionCost
+		qualities = append(qualities, quality)
+		cases = append(cases, SixthSecondCase)
+	}
+
+	return findMaxQuality(qualities, cases)
+}
+
+func (a *AlignmentTask) findSeventhCaseQuality(pair TreePair) (int, int) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+
+	tagCost := a.findRootTagsCost(firstTag, DeletionTag)
+	aDelID := firstID
+	if aDelID < len(a.first)/2 {
+		aDelID += len(a.first) / 2
+	}
+	firstQuality := tagCost - a.first[aDelID].FullPenalty - a.second[secondID].FullPenalty
+
+	tagCost = a.findRootTagsCost(DeletionTag, secondTag)
+	bDelID := secondID
+	if bDelID < len(a.second)/2 {
+		bDelID += len(a.second) / 2
+	}
+	secondQuality := tagCost - a.first[firstID].FullPenalty - a.second[bDelID].FullPenalty
+
+	if firstQuality > secondQuality {
+		return firstQuality, SeventhFirstCase
+	} else {
+		return secondQuality, SeventhSecondCase
+	}
+}
 
 func (a *AlignmentTask) calculatePairQuality(pair TreePair) (int, int) {
 	// Empty trees.
@@ -212,6 +358,38 @@ func (a *AlignmentTask) calculatePairQuality(pair TreePair) (int, int) {
 	cases = append(cases, c)
 
 	// 2
+	q, c = a.findSecondCaseQuality(pair)
+	qualities = append(qualities, q)
+	cases = append(cases, c)
+
+	// 3
+	if a.first[pair.Lhs].Tag != DeletionTag || a.second[pair.Rhs].Tag != DeletionTag {
+		q, c = a.findThirdCaseQuality(pair)
+		qualities = append(qualities, q)
+		cases = append(cases, c)
+	}
+
+	// 4
+	q, c = a.findFourthCaseQuality(pair)
+	qualities = append(qualities, q)
+	cases = append(cases, c)
+
+	// 5
+	q, c = a.findFifthCaseQuality(pair)
+	qualities = append(qualities, q)
+	cases = append(cases, c)
+
+	// 6
+	if a.first[pair.Lhs].Tag != DeletionTag || a.second[pair.Rhs].Tag != DeletionTag {
+		q, c = a.findSixthCaseQuality(pair)
+		qualities = append(qualities, q)
+		cases = append(cases, c)
+	}
+
+	// 7
+	q, c = a.findSeventhCaseQuality(pair)
+	qualities = append(qualities, q)
+	cases = append(cases, c)
 
 	return findMaxQuality(qualities, cases)
 }

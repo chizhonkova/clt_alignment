@@ -44,4 +44,30 @@ const (
 	// 1
 	FirstACAndBDCase = 3
 	FirstADAndBCCase = 4
+
+	// 2
+	SecondABAndCCase = 5
+	SecondACAndBCase = 6
+	SecondDFAndECase = 7
+	SecondEFAndDCase = 8
+
+	// 3
+	ThirdCase = 9
+
+	// 4
+	FourthCase = 10
+
+	// 5
+	FifthACAndBCase = 11
+	FifthBCAndACase = 12
+	FifthDEAndFCase = 13
+	FifthDFAndECase = 14
+
+	// 6
+	SixthFirstCase  = 15
+	SixthSecondCase = 16
+
+	// 7
+	SeventhFirstCase  = 17
+	SeventhSecondCase = 18
 )
