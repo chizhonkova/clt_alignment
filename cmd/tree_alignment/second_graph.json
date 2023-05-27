@@ -1,17 +1,56 @@
 [
 	{
 		"id": 0,
-		"tag": "b",
+		"tag": "d",
 		"left": 1,
 		"right": 2
 	},
 	{
 		"id": 1,
-		"tag": "b"
+		"tag": "b",
+		"left": 3,
+		"right": 4
 	},
 	{
 		"id": 2,
+		"tag": "e",
+		"left": 5,
+		"right": 6
+	},
+	{
+		"id": 3,
+		"tag": "a"
+	},
+	{
+		"id": 4,
+		"tag": "c",
+		"left": 7,
+		"right": 8
+	},
+	{
+		"id": 5,
+		"tag": "e"
+	},
+	{
+		"id": 6,
+		"tag": "f",
+		"left": 9,
+		"right": 10
+	},
+	{
+		"id": 7,
+		"tag": "e"
+	},
+	{
+		"id": 8,
+		"tag": "e"
+	},
+	{
+		"id": 9,
 		"tag": "f"
+	},
+	{
+		"id": 10,
+		"tag": "d"
 	}
 ]
-
