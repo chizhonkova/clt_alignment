@@ -24,6 +24,15 @@ Flags:
       --tag-equality-cost int      cost for equal tags (default 4)
       --tag-unequality-cost int    penalty for unequal tags (default 3)
 ```
+Graphs are stores as JSON files as arrays of nodes. Node example:
+```(json)
+{
+  "id": 0,
+  "tag": "-",
+  "left": 1,
+  "right": 2
+}
+```
 
 ## Example
 All necessary data for the example can be found in cmd/tree_alignment.
