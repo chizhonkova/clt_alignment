@@ -46,7 +46,7 @@ All necessary data for the example can be found in cmd/tree_alignment.
 ```(console)
 $ ./tree_alignment --first-graph-path first_graph.json --second-graph-path second_graph.json --result-path res.json
 Calculating maximum quality...
-Quality: 5
+Quality: 5.
 Building CLT alignment...
 Result is written to res.json.
 ```
