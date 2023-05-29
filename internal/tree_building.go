@@ -274,7 +274,7 @@ func (a *AlignmentTask) buildFifthCase(pair TreePair, parent TreePair, childType
 }
 
 func (a *AlignmentTask) buildDeletionPair(pair TreePair, parent TreePair, childType TreePair) {
-	fmt.Printf("Deletion subtree pair. Lhs: %v, Rhs: %v.\n", pair.Lhs, pair.Rhs)
+	// fmt.Printf("Deletion subtree pair. Lhs: %v, Rhs: %v.\n", pair.Lhs, pair.Rhs)
 
 	if pair.Lhs == EmptyTreeID && pair.Rhs == EmptyTreeID {
 		return
@@ -326,8 +326,303 @@ func (a *AlignmentTask) buildDeletionPair(pair TreePair, parent TreePair, childT
 		TreePair{Lhs: RightChild, Rhs: RightChild})
 }
 
+func (a *AlignmentTask) buildThirdCase(pair TreePair, parent TreePair, childType TreePair) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+
+	newFirstID := a.firstCnt
+	a.firstCnt++
+	newSecondID := a.secondCnt
+	a.secondCnt++
+
+	firstLeft := EmptyTreeID
+	firstRight := EmptyTreeID
+	secondLeft := EmptyTreeID
+	secondRight := EmptyTreeID
+
+	delFirstID := a.firstCnt
+	a.firstCnt++
+	delSecondID := a.secondCnt
+	a.secondCnt++
+
+	a.firstResult[delFirstID] = &NodeDescription{
+		ID:    delFirstID,
+		Tag:   DeletionTag,
+		Left:  &firstLeft,
+		Right: &firstRight,
+	}
+	a.secondResult[delSecondID] = &NodeDescription{
+		ID:    delSecondID,
+		Tag:   DeletionTag,
+		Left:  &secondLeft,
+		Right: &secondRight,
+	}
+
+	a.firstResult[newFirstID] = &NodeDescription{
+		ID:    newFirstID,
+		Tag:   firstTag,
+		Left:  &firstLeft,
+		Right: &delFirstID,
+	}
+	a.secondResult[newSecondID] = &NodeDescription{
+		ID:    newSecondID,
+		Tag:   secondTag,
+		Left:  &secondLeft,
+		Right: &delSecondID,
+	}
+
+	a.fixParents(TreePair{Lhs: newFirstID, Rhs: newSecondID}, parent, childType)
+
+	aDelID := firstID
+	if aDelID < len(a.first)/2 {
+		aDelID += len(a.first) / 2
+	}
+	bDelId := secondID
+	if bDelId < len(a.second)/2 {
+		bDelId += len(a.second) / 2
+	}
+
+	a.buildNextPair(
+		TreePair{Lhs: aDelID, Rhs: bDelId},
+		TreePair{Lhs: newFirstID, Rhs: newSecondID},
+		TreePair{Lhs: LeftChild, Rhs: LeftChild})
+}
+
+func (a *AlignmentTask) buildFourthCase(pair TreePair, parent TreePair, childType TreePair) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+
+	newFirstID := a.firstCnt
+	a.firstCnt++
+	newSecondID := a.secondCnt
+	a.secondCnt++
+
+	firstLeft := EmptyTreeID
+	firstRight := EmptyTreeID
+	secondLeft := EmptyTreeID
+	secondRight := EmptyTreeID
+
+	a.firstResult[newFirstID] = &NodeDescription{
+		ID:    newFirstID,
+		Tag:   firstTag,
+		Left:  &firstLeft,
+		Right: &firstRight,
+	}
+	a.secondResult[newSecondID] = &NodeDescription{
+		ID:    newSecondID,
+		Tag:   secondTag,
+		Left:  &secondLeft,
+		Right: &secondRight,
+	}
+
+	a.fixParents(TreePair{Lhs: newFirstID, Rhs: newSecondID}, parent, childType)
+
+	aDelID := firstID
+	if aDelID < len(a.first)/2 {
+		aDelID += len(a.first) / 2
+	}
+	bDelId := secondID
+	if bDelId < len(a.second)/2 {
+		bDelId += len(a.second) / 2
+	}
+
+	a.buildDeletionPair(
+		TreePair{Lhs: aDelID, Rhs: EmptyTreeID},
+		TreePair{Lhs: newFirstID, Rhs: newSecondID},
+		TreePair{Lhs: LeftChild, Rhs: LeftChild})
+	a.buildDeletionPair(
+		TreePair{Lhs: EmptyTreeID, Rhs: bDelId},
+		TreePair{Lhs: newFirstID, Rhs: newSecondID},
+		TreePair{Lhs: RightChild, Rhs: RightChild})
+}
+
+func (a *AlignmentTask) buildSixthCase(pair TreePair, parent TreePair, childType TreePair) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+
+	newFirstID := a.firstCnt
+	a.firstCnt++
+	newSecondID := a.secondCnt
+	a.secondCnt++
+
+	firstLeft := EmptyTreeID
+	firstRight := EmptyTreeID
+	secondLeft := EmptyTreeID
+	secondRight := EmptyTreeID
+
+	delFirstID := a.firstCnt
+	a.firstCnt++
+	delSecondID := a.secondCnt
+	a.secondCnt++
+
+	c := a.qCase[pair]
+
+	if c == SixthFirstCase {
+		a.firstResult[newFirstID] = &NodeDescription{
+			ID:    newFirstID,
+			Tag:   firstTag,
+			Left:  &firstLeft,
+			Right: &delFirstID,
+		}
+		a.secondResult[newSecondID] = &NodeDescription{
+			ID:    newSecondID,
+			Tag:   DeletionTag,
+			Left:  &secondLeft,
+			Right: &delSecondID,
+		}
+		a.firstResult[delFirstID] = &NodeDescription{
+			ID:    delFirstID,
+			Tag:   DeletionTag,
+			Left:  &firstLeft,
+			Right: &firstRight,
+		}
+		a.secondResult[delSecondID] = &NodeDescription{
+			ID:    delSecondID,
+			Tag:   DeletionTag,
+			Left:  &secondLeft,
+			Right: &secondRight,
+		}
+
+		a.fixParents(TreePair{Lhs: newFirstID, Rhs: newSecondID}, parent, childType)
+
+		aDelID := firstID
+		if aDelID < len(a.first)/2 {
+			aDelID += len(a.first) / 2
+		}
+		a.buildNextPair(
+			TreePair{Lhs: aDelID, Rhs: secondID},
+			TreePair{Lhs: newFirstID, Rhs: newSecondID},
+			TreePair{Lhs: LeftChild, Rhs: LeftChild})
+	} else {
+		a.firstResult[newFirstID] = &NodeDescription{
+			ID:    newFirstID,
+			Tag:   DeletionTag,
+			Left:  &firstLeft,
+			Right: &delFirstID,
+		}
+		a.secondResult[newSecondID] = &NodeDescription{
+			ID:    newSecondID,
+			Tag:   secondTag,
+			Left:  &secondLeft,
+			Right: &delSecondID,
+		}
+		a.firstResult[delFirstID] = &NodeDescription{
+			ID:    delFirstID,
+			Tag:   DeletionTag,
+			Left:  &firstLeft,
+			Right: &firstRight,
+		}
+		a.secondResult[delSecondID] = &NodeDescription{
+			ID:    delSecondID,
+			Tag:   DeletionTag,
+			Left:  &secondLeft,
+			Right: &secondRight,
+		}
+
+		a.fixParents(TreePair{Lhs: newFirstID, Rhs: newSecondID}, parent, childType)
+
+		bDelID := secondID
+		if bDelID < len(a.second)/2 {
+			bDelID += len(a.second) / 2
+		}
+		a.buildNextPair(
+			TreePair{Lhs: firstID, Rhs: bDelID},
+			TreePair{Lhs: newFirstID, Rhs: newSecondID},
+			TreePair{Lhs: LeftChild, Rhs: LeftChild})
+	}
+}
+
+func (a *AlignmentTask) buildSeventhCase(pair TreePair, parent TreePair, childType TreePair) {
+	firstID := pair.Lhs
+	secondID := pair.Rhs
+
+	firstTag := a.first[firstID].Tag
+	secondTag := a.second[secondID].Tag
+
+	newFirstID := a.firstCnt
+	a.firstCnt++
+	newSecondID := a.secondCnt
+	a.secondCnt++
+
+	firstLeft := EmptyTreeID
+	firstRight := EmptyTreeID
+	secondLeft := EmptyTreeID
+	secondRight := EmptyTreeID
+
+	c := a.qCase[pair]
+
+	if c == SeventhFirstCase {
+		a.firstResult[newFirstID] = &NodeDescription{
+			ID:    newFirstID,
+			Tag:   firstTag,
+			Left:  &firstLeft,
+			Right: &firstRight,
+		}
+		a.secondResult[newSecondID] = &NodeDescription{
+			ID:    newSecondID,
+			Tag:   DeletionTag,
+			Left:  &secondLeft,
+			Right: &secondRight,
+		}
+
+		a.fixParents(TreePair{Lhs: newFirstID, Rhs: newSecondID}, parent, childType)
+
+		aDelID := firstID
+		if aDelID < len(a.first)/2 {
+			aDelID += len(a.first) / 2
+		}
+		a.buildDeletionPair(
+			TreePair{Lhs: aDelID, Rhs: EmptyTreeID},
+			TreePair{Lhs: newFirstID, Rhs: newSecondID},
+			TreePair{Lhs: LeftChild, Rhs: LeftChild})
+		a.buildDeletionPair(
+			TreePair{Lhs: EmptyTreeID, Rhs: secondID},
+			TreePair{Lhs: newFirstID, Rhs: newSecondID},
+			TreePair{Lhs: RightChild, Rhs: RightChild})
+
+	} else {
+		a.firstResult[newFirstID] = &NodeDescription{
+			ID:    newFirstID,
+			Tag:   DeletionTag,
+			Left:  &firstLeft,
+			Right: &firstRight,
+		}
+		a.secondResult[newSecondID] = &NodeDescription{
+			ID:    newSecondID,
+			Tag:   secondTag,
+			Left:  &secondLeft,
+			Right: &secondRight,
+		}
+
+		a.fixParents(TreePair{Lhs: newFirstID, Rhs: newSecondID}, parent, childType)
+
+		bDelID := secondID
+		if bDelID < len(a.second)/2 {
+			bDelID += len(a.second) / 2
+		}
+
+		a.buildDeletionPair(
+			TreePair{Lhs: firstID, Rhs: EmptyTreeID},
+			TreePair{Lhs: newFirstID, Rhs: newSecondID},
+			TreePair{Lhs: LeftChild, Rhs: LeftChild})
+		a.buildDeletionPair(
+			TreePair{Lhs: EmptyTreeID, Rhs: bDelID},
+			TreePair{Lhs: newFirstID, Rhs: newSecondID},
+			TreePair{Lhs: RightChild, Rhs: RightChild})
+	}
+}
+
 func (a *AlignmentTask) buildNextPair(pair TreePair, parent TreePair, childType TreePair) {
-	fmt.Printf("Tree pair. Lhs: %v, Rhs: %v.\n", pair.Lhs, pair.Rhs)
+	// fmt.Printf("Tree pair. Lhs: %v, Rhs: %v.\n", pair.Lhs, pair.Rhs)
 
 	if pair.Lhs == EmptyTreeID && pair.Rhs == EmptyTreeID {
 		return
@@ -349,8 +644,28 @@ func (a *AlignmentTask) buildNextPair(pair TreePair, parent TreePair, childType 
 		return
 	}
 
+	if c == ThirdCase {
+		a.buildThirdCase(pair, parent, childType)
+		return
+	}
+
+	if c == FourthCase {
+		a.buildFourthCase(pair, parent, childType)
+	}
+
 	if c >= FifthACAndBCase && c <= FifthDFAndECase {
 		a.buildFifthCase(pair, parent, childType)
+		return
+	}
+
+	if c == SixthFirstCase || c == SixthSecondCase {
+		a.buildSixthCase(pair, parent, childType)
+		return
+	}
+
+	if c == SeventhFirstCase || c == SeventhSecondCase {
+		a.buildSeventhCase(pair, parent, childType)
+		return
 	}
 }
 

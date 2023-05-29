@@ -404,7 +404,7 @@ func (a *AlignmentTask) calculateQuality() {
 		quality, qCase := a.calculatePairQuality(pair)
 		a.quality[pair] = quality
 		a.qCase[pair] = qCase
-		fmt.Printf("Pair: %v, Quality: %v, Case: %v\n", pair, a.quality[pair], a.qCase[pair])
+		// fmt.Printf("Pair: %v, Quality: %v, Case: %v\n", pair, a.quality[pair], a.qCase[pair])
 	}
 }
 
@@ -439,7 +439,7 @@ func CalculateAlignment(c *Config) error {
 	a.printInfo()
 
 	// Dynamically build alignment tree.
-	fmt.Println("Building alignment...")
+	fmt.Println("Building CLT alignment...")
 
 	a.buildResult()
 	a.flushResult()
