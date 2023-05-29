@@ -39,6 +39,8 @@ Graphs are stores as JSON files as arrays of nodes. Graph example:
 ]
 ```
 
+In the result file the alignment is saved as two graphs in the same representation.
+
 ## Example
 All necessary data for the example can be found in cmd/tree_alignment.
 ```(console)
