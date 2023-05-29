@@ -36,6 +36,11 @@ const (
 	DeletionTag    = "-"
 	EmptyTreeID    = -1
 	DefaultPenalty = -1
+	NoParent       = -1
+
+	LeftChild  = 0
+	RightChild = 1
+	NotAChild  = -1
 
 	BothEmptyCase  = 0
 	LeftEmptyCase  = 1

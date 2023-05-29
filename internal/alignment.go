@@ -16,6 +16,11 @@ type AlignmentTask struct {
 	sortedPairs []TreePair
 	quality     map[TreePair]int
 	qCase       map[TreePair]int
+
+	firstResult  Tree
+	firstCnt     int
+	secondResult Tree
+	secondCnt    int
 }
 
 func NewTree() Tree {
@@ -404,13 +409,7 @@ func (a *AlignmentTask) calculateQuality() {
 }
 
 func (a *AlignmentTask) printInfo() {
-	for _, node := range a.first {
-		fmt.Printf("First tree. ID: %v, Full penalty: %v\n", node.ID, node.FullPenalty)
-	}
-
-	for _, node := range a.second {
-		fmt.Printf("Second tree. ID: %v, Full penalty: %v\n", node.ID, node.FullPenalty)
-	}
+	fmt.Printf("Quality: %v\n", a.quality[TreePair{Lhs: 0, Rhs: 0}])
 }
 
 func CalculateAlignment(c *Config) error {
@@ -433,10 +432,17 @@ func CalculateAlignment(c *Config) error {
 	}
 
 	// Calculate quality of this pairs.
+	fmt.Println("Calculating maximum quality...")
+
 	a.calculateQuality()
 
 	a.printInfo()
 
 	// Dynamically build alignment tree.
+	fmt.Println("Building alignment...")
+
+	a.buildResult()
+	a.flushResult()
+
 	return nil
 }
