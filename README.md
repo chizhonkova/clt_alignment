@@ -24,14 +24,19 @@ Flags:
       --tag-equality-cost int      cost for equal tags (default 4)
       --tag-unequality-cost int    penalty for unequal tags (default 3)
 ```
-Graphs are stores as JSON files as arrays of nodes. Node example:
+Graphs are stores as JSON files as arrays of nodes. Graph example:
 ```(json)
-{
-  "id": 0,
-  "tag": "-",
-  "left": 1,
-  "right": 2
-}
+[
+  {
+    "id": 0,
+    "tag": "-",
+    "left": 1
+  },
+  {
+    "id": 1,
+    "tag": "a"
+  }
+]
 ```
 
 ## Example
